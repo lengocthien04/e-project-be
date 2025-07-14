@@ -1,0 +1,12 @@
+# Ignore all TypeScript files
+*.ts
+*.tsx
+
+# Or ignore specific directories
+src/
+dist/
+node_modules/
+
+# Or ignore specific files
+*.entity.ts
+*.dto.ts
