@@ -3,7 +3,7 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { User } from './entities/user.entity';
+import { User } from '../../entities/user.entity';
 import { UserRole } from 'src/common/enums/user-role.enum';
 
 @Injectable()

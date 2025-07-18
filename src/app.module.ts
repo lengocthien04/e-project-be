@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_GUARD } from '@nestjs/core';
 import { DatabaseConfig } from './configs/database.config';
-import { JwtAuthGuard } from './module/auth/guards/jwt-auth.guard';
 import { AuthModule } from './module/auth/auth.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { StudentModule } from './module/student/student.module';
+import { TeacherModule } from './module/teacher/teacher.module';
+import { JwtStrategy } from './module/auth/stratergies/jwt.strategy';
 
 @Module({
   imports: [
@@ -15,12 +18,18 @@ import { AuthModule } from './module/auth/auth.module';
       useClass: DatabaseConfig,
     }),
     AuthModule,
+    StudentModule,
+    TeacherModule,
+    AuthModule,
   ],
+  controllers: [AppController],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
+    
+    AppService,
+      JwtStrategy
+
   ],
 })
-export class AppModule {}
+export class AppModule {  constructor() {
+    console.log('🔥 APP MODULE CONSTRUCTOR - AuthModule should be loaded');
+  }}
