@@ -15,6 +15,7 @@ import {
 import { TeacherService } from './teacher.service';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
+import { TeacherSearchDto } from './dto/teacher-search.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TeacherStatus } from 'src/common/enums/student.enum';
 
@@ -33,11 +34,11 @@ export class TeacherController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(@Query() searchDto: TeacherSearchDto) {
     return {
       statusCode: HttpStatus.OK,
       message: 'Teachers retrieved successfully',
-      data: await this.teacherService.findAll(),
+      data: await this.teacherService.findAllPaginated(searchDto),
     };
   }
 

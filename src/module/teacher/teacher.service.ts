@@ -8,6 +8,8 @@ import { Class, ClassStatus } from '../../entities/class.entity';
 import { TeacherStatus } from 'src/common/enums/student.enum';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
+import { TeacherSearchDto } from './dto/teacher-search.dto';
+import { PaginatedResponse, PaginationMetadata } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class TeacherService {
@@ -47,6 +49,57 @@ export class TeacherService {
     return await this.teacherRepository.find({
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async findAllPaginated(searchDto: TeacherSearchDto): Promise<PaginatedResponse<Teacher>> {
+    const { page = 1, limit = 10, search, name, employeeId } = searchDto;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.teacherRepository
+      .createQueryBuilder('teacher')
+      .orderBy('teacher.createdAt', 'DESC');
+
+    // Apply search filters
+    if (search) {
+      queryBuilder.where(
+        '(teacher.firstName ILIKE :search OR teacher.lastName ILIKE :search OR teacher.employeeId ILIKE :search OR teacher.email ILIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    if (name) {
+      queryBuilder.andWhere(
+        '(teacher.firstName ILIKE :name OR teacher.lastName ILIKE :name)',
+        { name: `%${name}%` }
+      );
+    }
+
+    if (employeeId) {
+      queryBuilder.andWhere('teacher.employeeId ILIKE :employeeId', {
+        employeeId: `%${employeeId}%`,
+      });
+    }
+
+    const [teachers, total] = await queryBuilder
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(total / limit);
+
+    const metadata: PaginationMetadata = {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
+
+    return {
+      data: teachers,
+      metadata,
+    };
   }
 
   async findOne(id: number): Promise<Teacher> {

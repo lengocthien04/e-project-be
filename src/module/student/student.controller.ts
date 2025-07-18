@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { StudentSearchDto } from './dto/student-search.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { StudentStatus } from 'src/common/enums/student.enum';
 import { StudentService } from './student.service';
@@ -33,11 +34,11 @@ export class StudentController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(@Query() searchDto: StudentSearchDto) {
     return {
       statusCode: HttpStatus.OK,
       message: 'Students retrieved successfully',
-      data: await this.studentService.findAll(),
+      data: await this.studentService.findAllPaginated(searchDto),
     };
   }
 

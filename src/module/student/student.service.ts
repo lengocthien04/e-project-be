@@ -3,9 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { StudentSearchDto } from './dto/student-search.dto';
 import { Student } from '../../entities/student.entity';
 import { StudyRecord } from '../../entities/study-record.entity';
 import { LetterGrade, RecordStatus, StudentStatus } from 'src/common/enums/student.enum';
+import { PaginatedResponse, PaginationMetadata } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class StudentService {
@@ -43,6 +45,57 @@ export class StudentService {
     return await this.studentRepository.find({
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async findAllPaginated(searchDto: StudentSearchDto): Promise<PaginatedResponse<Student>> {
+    const { page = 1, limit = 10, search, name, studentId } = searchDto;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.studentRepository
+      .createQueryBuilder('student')
+      .orderBy('student.createdAt', 'DESC');
+
+    // Apply search filters
+    if (search) {
+      queryBuilder.where(
+        '(student.firstName ILIKE :search OR student.lastName ILIKE :search OR student.studentId ILIKE :search OR student.email ILIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    if (name) {
+      queryBuilder.andWhere(
+        '(student.firstName ILIKE :name OR student.lastName ILIKE :name)',
+        { name: `%${name}%` }
+      );
+    }
+
+    if (studentId) {
+      queryBuilder.andWhere('student.studentId ILIKE :studentId', {
+        studentId: `%${studentId}%`,
+      });
+    }
+
+    const [students, total] = await queryBuilder
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(total / limit);
+
+    const metadata: PaginationMetadata = {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
+
+    return {
+      data: students,
+      metadata,
+    };
   }
 
   async findOne(id: number): Promise<Student> {
@@ -107,7 +160,7 @@ export class StudentService {
 
     if (updateStudentDto.studentId && updateStudentDto.studentId !== student.studentId) {
       const existingStudent = await this.studentRepository.findOne({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         where: { studentId: updateStudentDto.studentId },
       });
       if (existingStudent) {
@@ -117,7 +170,7 @@ export class StudentService {
 
     if (updateStudentDto.email && updateStudentDto.email !== student.email) {
       const existingEmail = await this.studentRepository.findOne({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         where: { email: updateStudentDto.email },
       });
       if (existingEmail) {
