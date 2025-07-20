@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
+import { Analytics } from 'src/entities/analytics.entity';
 import { Class } from 'src/entities/class.entity';
 import { Course } from 'src/entities/course.entity';
 import { Student } from 'src/entities/student.entity';
@@ -21,7 +22,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('DATABASE_USERNAME'),
       password: this.configService.get<string>('DATABASE_PASSWORD'),
       database: this.configService.get<string>('DATABASE_NAME'),
-      entities: [User, Student, Teacher, StudyRecord, TeachingRecord, Class, Course],
+      entities: [User, Student, Teacher, StudyRecord, TeachingRecord, Class, Course, Analytics],
       synchronize: this.configService.get<string>('NODE_ENV') === 'development',
       logging: this.configService.get<string>('NODE_ENV') === 'development',
       ssl: {

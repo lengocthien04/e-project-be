@@ -52,7 +52,7 @@ export class TeacherService {
   }
 
   async findAllPaginated(searchDto: TeacherSearchDto): Promise<PaginatedResponse<Teacher>> {
-    const { page = 1, limit = 10, search, name, employeeId } = searchDto;
+    const { page = 1, limit = 10, search } = searchDto;
     const skip = (page - 1) * limit;
 
     const queryBuilder = this.teacherRepository
@@ -67,18 +67,6 @@ export class TeacherService {
       );
     }
 
-    if (name) {
-      queryBuilder.andWhere(
-        '(teacher.firstName ILIKE :name OR teacher.lastName ILIKE :name)',
-        { name: `%${name}%` }
-      );
-    }
-
-    if (employeeId) {
-      queryBuilder.andWhere('teacher.employeeId ILIKE :employeeId', {
-        employeeId: `%${employeeId}%`,
-      });
-    }
 
     const [teachers, total] = await queryBuilder
       .skip(skip)

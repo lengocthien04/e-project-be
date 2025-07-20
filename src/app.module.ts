@@ -8,6 +8,8 @@ import { AppService } from './app.service';
 import { StudentModule } from './module/student/student.module';
 import { TeacherModule } from './module/teacher/teacher.module';
 import { JwtStrategy } from './module/auth/stratergies/jwt.strategy';
+import { CourseModule } from './module/course/course.module';
+import { AnalyticsModule } from './module/analytic/analytics.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { JwtStrategy } from './module/auth/stratergies/jwt.strategy';
     StudentModule,
     TeacherModule,
     AuthModule,
+    CourseModule,
+    AnalyticsModule
   ],
   controllers: [AppController],
   providers: [

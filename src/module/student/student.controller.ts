@@ -35,10 +35,11 @@ export class StudentController {
 
   @Get()
   async findAll(@Query() searchDto: StudentSearchDto) {
+    const data =  await this.studentService.findAllPaginated(searchDto);
     return {
       statusCode: HttpStatus.OK,
       message: 'Students retrieved successfully',
-      data: await this.studentService.findAllPaginated(searchDto),
+      ...data
     };
   }
 
